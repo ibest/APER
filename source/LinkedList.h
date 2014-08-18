@@ -1,14 +1,8 @@
-/*  link.h
- */
-
-//#include <bool.h>   //  Not on all compilers
-#include <iostream>
-
-using namespace std;
+#include <stdio.h>
 
 class LinkedList {
 	private:
-
+		//Structure
 		struct node {
      			int info;
 			char error;
@@ -44,26 +38,22 @@ class LinkedList {
    	} 
     
 	// Add a node onto the front of the linked list.
-   	void AddNode(int x, char errors, int num_of_error, bool duplicate);
-	void AddNode_Order(int x, char errors, int num_of_errors, bool duplicates);
+	void AddNode_Order(int bp_position, char errors, int num_of_errors, bool duplicates);
 	
 	char Errors (int pos);
 	int Num_Errors (int pos);
 	
 	// Delete the first node found with the value x, if one exists.
-	void DeleteNode(int x);
+	void DeleteNode(int bp_position);
    
     	// Return the first node found in the list
    	int FirstNode();
-
-	//Returns Insertions before
-	int InsertionsBefore( int x );
 
     	// Output the values in the nodes, one integer per line. 
    	void PrintNodes();
 
     	// Return true if there in a node in the list with the value x.
-   	bool IsInList(int x);
+   	bool IsInList(int bp_position);
 
     	// Return a count of the number of nodes in the list.
    	int Size();

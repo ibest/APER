@@ -1,7 +1,6 @@
 //SAM Metric
 //David Streett
 
-#include "global_constants.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,11 +10,11 @@
 #include "LinkedList_BP.h"
 #include <time.h>
 
-int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors);
+int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, int &read_1_length, int &read_2_length);
 int Test_Sam_Flag(int sam_flag);
 void Cigar_Parser(char *cigar, LinkedList *ll_errors);
 void MD_Parser(char *MD, LinkedList *ll_errors);
-void Update_BP_Info(char *qual, char *seq, LinkedList *ll_errors, LinkedList_BP *ll_quality_info, int read);
+void Update_BP_Info(char *qual, char *seq, LinkedList *ll_errors, LinkedList_BP *ll_quality_info, int read, int reference_pos);
 
 int main(int argc, char *argv[]) {
 	//variables to collect command line arguments
@@ -31,11 +30,11 @@ int main(int argc, char *argv[]) {
         char *fout_name = NULL;
         FILE *sam_file;
         FILE *output_file;
-	int count = 1;
-
+	int cores = 1;
+	bool to_reference = false;
 	//-i is input file
 	//-o is output file
-        while ((cmd_line_char = getopt(argc, argv, "i:o:c:")) != EOF) {
+        while ((cmd_line_char = getopt(argc, argv, "ri:o:c:")) != EOF) {
                 switch(cmd_line_char) {
                         case 'i':
                                 fin_name = strdup(optarg);
@@ -44,8 +43,12 @@ int main(int argc, char *argv[]) {
                                 fout_name = strdup(optarg);
                                 break;
                         case 'c':
-                                count = atoi(optarg);
+				//Future inhancement
+                                cores = atoi(optarg);
                                 break;
+			case 'r':
+				to_reference = true;
+				break;
                         case '?':
                                 printf("-%c is not a valid argument\n", cmd_line_char);
                                 break;
@@ -58,8 +61,6 @@ int main(int argc, char *argv[]) {
                 sam_file = stdin;
         }
 
-
-
 	char *line = NULL;
 	char *data;
 	size_t len;
@@ -67,6 +68,9 @@ int main(int argc, char *argv[]) {
 	long int total_reads=0;
 	long int total_mapped_reads=0;
 	int check_parser = 0;
+
+	int read_1_length = -1;
+	int read_2_length = -1;
 
 	LinkedList_BP *ll_quality_info;
 	LinkedList *ll_errors;
@@ -78,21 +82,26 @@ int main(int argc, char *argv[]) {
 	if (sam_file != NULL) {
 
 		while((read = getline(&line, &len, sam_file))!= -1) {
-			//Removes sam headers
+			//WIll not count sam headers
 			if (line[0] != '@') {		
+				
 				total_reads++;
+				
+				//since we tolkenize line, we save off a good copy for trouble shooting purposes
 				data = strdup(line);
-				check_parser = Parser(data, ll_quality_info, ll_errors);
+				
+				//Parser will add onto ll_quality_info but will call Cigar_Parser and MD_Parser to add
+				//errors to ll_errors
+				check_parser = Parser(data, ll_quality_info, ll_errors, to_reference, read_1_length, read_2_length);
+
+				//Parser returns either a 1 or a 0 counts mapped reads
 				total_mapped_reads += check_parser;
+
 				free(data);
-
-				if (check_parser == 1) {
-			//		printf("%s\n", line);
-			//		ll_quality_info->Validate();
-				}
-
 				free(line);
+				data = NULL;
 				line = NULL;
+
 			}
 		}
 	} else {
@@ -106,7 +115,8 @@ int main(int argc, char *argv[]) {
                 output_file = stdout;
         }
 	
-	ll_quality_info->GetBPErrors(output_file, total_reads, total_mapped_reads);
+	//prints out to a file errors in matrix
+	ll_quality_info->GetBPErrors(output_file, total_reads, total_mapped_reads, read_1_length, read_2_length);
 
 	delete ll_quality_info;
 	delete ll_errors;
@@ -125,7 +135,7 @@ int Test_Sam_Flag(int sam_flag) {
 }
 
 
-int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors) {
+int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, int &read_1_length, int &read_2_length) {
 
 	char *tolkenized = NULL;
 	char *cigar = NULL;
@@ -135,6 +145,7 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors) {
 	int read = -1;
 	int pos = 0;
 	int column_num = 0;
+	int reference_pos = 0;
 
 	tolkenized = strtok(data, "\t");
 	
@@ -142,20 +153,24 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors) {
 	while (tolkenized != NULL) {
 		pos++;
 	
+		//Columns constants are defined in global_constants.h based on http://samtools.github.io/hts-specs/SAMv1.pdf
 		if (pos == COLUMN_FLAG) {
 			read = Test_Sam_Flag(atoi(tolkenized));
 		} else if (pos == COLUMN_CIGAR) {
-		/*	if (strncmp(tolkenized, "*xx", 1) != 0) {
-				cigar = strdup(tolkenized);					
-			} else {
-				return 0;
-			}	
-		*/
+			//ignoring '*'
 			if (tolkenized[0] != '*') {
 				cigar = strdup(tolkenized);
 			} else {
 				return 0;
 			}
+		} else if (pos == COLUMN_POS) {
+		
+			if (to_reference) {
+				reference_pos = atoi(tolkenized);
+			} else {
+				reference_pos = 0;
+			}
+
 		} else if (pos == COLUMN_SEQ) {
 			seq = strdup(tolkenized);
 		} else if (pos == COLUMN_QUAL) {
@@ -175,7 +190,19 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors) {
 	if (read != -1 && seq != NULL && qual != NULL && md != NULL && cigar != NULL) {
 		Cigar_Parser(cigar, ll_errors);
 		MD_Parser(md, ll_errors);
-		Update_BP_Info(qual, seq, ll_errors, ll_quality_info, read);
+		Update_BP_Info(qual, seq, ll_errors, ll_quality_info, read, reference_pos);
+
+		if (read == 0) {
+			if (read_1_length == -1) {
+				read_1_length = strlen(seq);
+			}
+		} else if (read == 1) {
+			if (read_2_length == -1) {
+				read_2_length = strlen(seq);
+			}
+		}
+	
+
 		return 1;
 	} else {
 		return 0;
@@ -183,40 +210,59 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors) {
 
 }
 
-void Update_BP_Info(char *qual, char *seq,  LinkedList *ll_errors, LinkedList_BP *ll_quality_info, int read) {
-	int len = strlen(qual) ;
-	int i = 0;
-	int pos = 0;
-	while (i < len) {
-		pos = i + 1;
+void Update_BP_Info(char *qual, char *seq,  LinkedList *ll_errors, LinkedList_BP *ll_quality_info, int read, int reference_pos) {
+
+	int len = strlen(qual);
+	int pos_in_qual_str = 0;
+	int bp_pos = 0;
+	int real_bp_pos = 0;
+
+	while (pos_in_qual_str < len) {
+		bp_pos = pos_in_qual_str + 1;
+
+
+		//real_bp_pos is added it compared to the reference genome,
+		//this is an argument passed in
+		//bp_pos is that reference to the read locally and must be kept to pull out the errors correctly
+		if (reference_pos != 0) {
+			real_bp_pos = pos_in_qual_str + reference_pos;
+		} else {
+			real_bp_pos = bp_pos;
+		}
 	
+		//If there are no more errors, add no errors
+		//Linked list BP AddNode(Base pair position, quality score, Expected BP, Error BP, Number of Errors, Read)
+		
 		if (ll_errors->Size() != 0) {
 			
-			if (ll_errors->FirstNode() == pos) {
-				while (ll_errors->FirstNode() == pos) {
+			//ll_errors is an ordered list so must only check first
+			if (ll_errors->FirstNode() == bp_pos) {
+			
+				//because deletions and mismatches can be in the same spot, insures all errors are counted
+				while (ll_errors->FirstNode() == bp_pos) {
 					
-					if (ll_errors->Errors(pos) == 'G' || ll_errors->Errors(pos) == 'T' || ll_errors->Errors(pos) == 'A' || ll_errors->Errors(pos) == 'C' || ll_errors->Errors(pos) == 'N') {	
-				//		printf("after bp error %i\n", i);
-
-						ll_quality_info->AddNode(pos, qual[i] - 33, ll_errors->Errors(pos), seq[i], ll_errors->Num_Errors(pos), read);
-						ll_errors->DeleteNode(pos);
+					//If it is a mismatch, must have a expected BP and then the error bp
+					if (ll_errors->Errors(bp_pos) == 'G' || ll_errors->Errors(bp_pos) == 'T' || ll_errors->Errors(bp_pos) == 'A' || ll_errors->Errors(bp_pos) == 'C' || ll_errors->Errors(bp_pos) == 'N') {	
+						ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, ll_errors->Errors(bp_pos), seq[pos_in_qual_str], ll_errors->Num_Errors(bp_pos), read);
+						ll_errors->DeleteNode(bp_pos);
 					} else {
-				//		printf("after indel %i\n", i);
-						//printf("error: %c\n num of errors %d\n", ll->Errors(pos), ll->Num_Errors(pos));
-						ll_quality_info->AddNode(pos, qual[i] - 33, ll_errors->Errors(pos), '\0', ll_errors->Num_Errors(pos), read);
-						ll_errors->DeleteNode(pos);
+					//If the error is anything else, expected bp is the NULL character and the error is the 'D', 'I', 'S'
+						ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, ll_errors->Errors(bp_pos), '\0', ll_errors->Num_Errors(bp_pos), read);
+						ll_errors->DeleteNode(bp_pos);
 					}
 				}
 			} else {	
-				//printf("just total %i\n", i);
-				ll_quality_info->AddNode(pos, qual[i] - 33, '\0', '\0', 1, read);
-				
+				//If there is no errors expected and error are both null
+				ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, '\0', '\0', 1, read);
 			}
+	
 		} else {
-			//printf("another just total %i\n", i);
-			ll_quality_info->AddNode(pos, qual[i] - 33, '\0', '\0',  1, read);
+			//if sice is 0, add no errors
+			ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, '\0', '\0',  1, read);
+
 		}
-		i++;
+
+		pos_in_qual_str++;
 	}
 
 

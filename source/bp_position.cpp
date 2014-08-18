@@ -1,8 +1,8 @@
 #include "bp_position.h"
-#include "global_constants.h"
 
 #include <stdio.h>
 #include <stdlib.h>
+
 bp_position::bp_position() {
 	position = 0;
 	next = NULL;
@@ -53,9 +53,9 @@ long int bp_position::GetTotal(int read) {
 }		
 
 
+
 void bp_position::IncrementErrorPlusTotal(int ascii_score, char error, int num_of_errors, char end_nuc, int read) {
-
-
+	//adds each of the errors based on the errors
 	for (int i = 0; i < num_of_errors; i++) {
 		if (error == 'D') {
 			info[ascii_score][read].IncrementDelError();
@@ -70,7 +70,7 @@ void bp_position::IncrementErrorPlusTotal(int ascii_score, char error, int num_o
 		} else {
 			printf("other %c\n", error);
 		}
-
+		//always increment total
 		info[ascii_score][read].IncrementTotal();
 
 	}
