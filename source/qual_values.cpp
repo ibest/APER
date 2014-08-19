@@ -13,26 +13,31 @@ qual_positions::qual_positions() {
         A_G = 0;
         A_C= 0;
 	A_N = 0;
+	A_A = 0;
 
         T_A= 0;
         T_G= 0;
         T_C= 0;
 	T_N = 0;
+	T_T = 0;
 
         C_A= 0;
         C_T= 0;
         C_G= 0;
 	C_N = 0;
+	C_C = 0;
 
         G_A=0;
         G_C=0;
 	G_T=0;
 	G_N=0;
+	G_G = 0;
 
 	N_A=0;
 	N_C=0;
 	N_T=0;
 	N_G=0;	
+	N_N = 0;
 	
 }
 
@@ -65,6 +70,8 @@ long int qual_positions::GetBPError(char start_nuc, char end_nuc) {
 		return T_C;
 	else if (start_nuc == 'T' && end_nuc == 'N')
 		return T_N;
+	else if (start_nuc == 'T' && end_nuc == 'T')
+		return T_T;
 
 	else if (start_nuc == 'G' && end_nuc == 'T')
 		return G_T;
@@ -74,6 +81,8 @@ long int qual_positions::GetBPError(char start_nuc, char end_nuc) {
 		return G_C;
 	else if (start_nuc == 'G' && end_nuc == 'N')
 		return G_N;
+	else if (start_nuc == 'G' && end_nuc == 'G')
+		return G_G;
 
 	else if (start_nuc == 'A' && end_nuc == 'T')
 		return A_T;
@@ -83,6 +92,8 @@ long int qual_positions::GetBPError(char start_nuc, char end_nuc) {
 		return A_C;
 	else if (start_nuc == 'A' && end_nuc == 'N')
 		return A_N;
+	else if (start_nuc == 'A' && end_nuc == 'A')
+		return A_A;
 
 	else if (start_nuc == 'C' && end_nuc == 'T')
 		return C_T;
@@ -92,6 +103,8 @@ long int qual_positions::GetBPError(char start_nuc, char end_nuc) {
 		return C_A;
 	else if (start_nuc == 'C' && end_nuc == 'N')
 		return C_N;
+	else if (start_nuc == 'C' && end_nuc == 'C')
+		return C_C;
 
 	else if (start_nuc == 'N' && end_nuc == 'T')
 		return N_T;
@@ -100,6 +113,8 @@ long int qual_positions::GetBPError(char start_nuc, char end_nuc) {
 	else if (start_nuc == 'N' && end_nuc == 'C')
 		return N_C;
 	else if (start_nuc == 'N' && end_nuc == 'A')
+		return N_A;
+	else if (start_nuc == 'N' && end_nuc == 'N')
 		return N_A;
 
 }
@@ -119,6 +134,8 @@ void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
 		T_C++;
 	else if (start_nuc == 'T' && end_nuc == 'N')
 		T_N++;
+	else if (start_nuc == 'T' && end_nuc == 'T')
+		T_T++;
 
 	else if (start_nuc == 'G' && end_nuc == 'T')
 		G_T++;
@@ -128,6 +145,8 @@ void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
 		G_C++;
 	else if (start_nuc == 'G' && end_nuc == 'N')
 		G_N++;
+	else if (start_nuc == 'G' && end_nuc == 'G')
+		G_G++;
 
 	else if (start_nuc == 'A' && end_nuc == 'T')
 		A_T++;
@@ -137,6 +156,8 @@ void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
 		A_C++;
 	else if (start_nuc == 'A' && end_nuc == 'N')
 		A_N++;
+	else if (start_nuc == 'A' && end_nuc == 'A')
+		A_A++;
 
 	else if (start_nuc == 'C' && end_nuc == 'T')
 		C_T++;
@@ -146,6 +167,8 @@ void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
 		C_A++;
 	else if (start_nuc == 'C' && end_nuc == 'N')
 		C_N++;
+	else if (start_nuc == 'C' && end_nuc == 'C')
+		C_C++;
 
 	else if (start_nuc == 'N' && end_nuc == 'T')
 		N_T++;
@@ -155,6 +178,8 @@ void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
 		N_C++;
 	else if (start_nuc == 'N' && end_nuc == 'A')
 		N_A++;
+	else if (start_nuc == 'N' && end_nuc == 'N')
+		N_N++;
 
 
 
@@ -181,3 +206,4 @@ void qual_positions::IncrementMatches() {
 void qual_positions::IncrementTotal() {
 	total++;
 }
+

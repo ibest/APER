@@ -46,7 +46,7 @@ def Command_Call(lst_R1_R2_reads, name):
 	
 	print command_string	
 
-	os.system(command_string)
+	#os.system(command_string)
 
 def main():
 	import sys

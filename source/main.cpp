@@ -10,8 +10,8 @@
 #include "LinkedList_BP.h"
 #include <time.h>
 
-int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, int &read_1_length, int &read_2_length);
-int Test_Sam_Flag(int sam_flag);
+int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, bool proper_alligment, int &read_1_length, int &read_2_length);
+int Test_Sam_Flag(int sam_flag, bool proper_alligment);
 void Cigar_Parser(char *cigar, LinkedList *ll_errors);
 void MD_Parser(char *MD, LinkedList *ll_errors);
 void Update_BP_Info(char *qual, char *seq, LinkedList *ll_errors, LinkedList_BP *ll_quality_info, int read, int reference_pos);
@@ -32,9 +32,10 @@ int main(int argc, char *argv[]) {
         FILE *output_file;
 	int cores = 1;
 	bool to_reference = false;
+	bool proper_alligment = true;
 	//-i is input file
 	//-o is output file
-        while ((cmd_line_char = getopt(argc, argv, "ri:o:c:")) != EOF) {
+        while ((cmd_line_char = getopt(argc, argv, "ri:o:c:p:")) != EOF) {
                 switch(cmd_line_char) {
                         case 'i':
                                 fin_name = strdup(optarg);
@@ -48,6 +49,9 @@ int main(int argc, char *argv[]) {
                                 break;
 			case 'r':
 				to_reference = true;
+				break;
+			case 'p':
+				proper_alligment = false;
 				break;
                         case '?':
                                 printf("-%c is not a valid argument\n", cmd_line_char);
@@ -92,7 +96,7 @@ int main(int argc, char *argv[]) {
 				
 				//Parser will add onto ll_quality_info but will call Cigar_Parser and MD_Parser to add
 				//errors to ll_errors
-				check_parser = Parser(data, ll_quality_info, ll_errors, to_reference, read_1_length, read_2_length);
+				check_parser = Parser(data, ll_quality_info, ll_errors, to_reference, proper_alligment, read_1_length, read_2_length);
 
 				//Parser returns either a 1 or a 0 counts mapped reads
 				total_mapped_reads += check_parser;
@@ -116,7 +120,7 @@ int main(int argc, char *argv[]) {
         }
 	
 	//prints out to a file errors in matrix
-	ll_quality_info->GetBPErrors(output_file, total_reads, total_mapped_reads, read_1_length, read_2_length);
+	ll_quality_info->GetBPErrors(output_file, total_reads, total_mapped_reads, read_1_length, read_2_length, fin_name);
 
 	delete ll_quality_info;
 	delete ll_errors;
@@ -124,8 +128,15 @@ int main(int argc, char *argv[]) {
 	return 0;
 }	
 
-int Test_Sam_Flag(int sam_flag) {
+int Test_Sam_Flag(int sam_flag, bool proper_alligment) {
 	//as defined http://samtools.github.io/hts-specs/SAMv1.pdf
+	
+	if (proper_alligment) {
+		if ((sam_flag & 0x2) == 0) {
+			return -1;
+		}
+	}
+
 	if (sam_flag & 0x40)
 		return 0;
 	else if (sam_flag & 0x80)
@@ -135,7 +146,7 @@ int Test_Sam_Flag(int sam_flag) {
 }
 
 
-int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, int &read_1_length, int &read_2_length) {
+int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, bool proper_alligment, int &read_1_length, int &read_2_length) {
 
 	char *tolkenized = NULL;
 	char *cigar = NULL;
@@ -155,7 +166,8 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bo
 	
 		//Columns constants are defined in global_constants.h based on http://samtools.github.io/hts-specs/SAMv1.pdf
 		if (pos == COLUMN_FLAG) {
-			read = Test_Sam_Flag(atoi(tolkenized));
+			read = Test_Sam_Flag(atoi(tolkenized), proper_alligment);
+			
 		} else if (pos == COLUMN_CIGAR) {
 			//ignoring '*'
 			if (tolkenized[0] != '*') {
@@ -252,13 +264,15 @@ void Update_BP_Info(char *qual, char *seq,  LinkedList *ll_errors, LinkedList_BP
 					}
 				}
 			} else {	
-				//If there is no errors expected and error are both null
-				ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, '\0', '\0', 1, read);
+				//XXXXXIf there is no errors expected and error are both null
+				//NOW: a match will be denoted by G_G, A_A, ext
+				ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, seq[pos_in_qual_str], seq[pos_in_qual_str], 1, read);
 			}
 	
 		} else {
-			//if sice is 0, add no errors
-			ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, '\0', '\0',  1, read);
+			//XXXif sice is 0, add no errors
+			//NOW: a match will be denoted by G_G, A_A, ext
+			ll_quality_info->AddNode(real_bp_pos, qual[pos_in_qual_str] - 33, seq[pos_in_qual_str], seq[pos_in_qual_str], 1, read);
 
 		}
 

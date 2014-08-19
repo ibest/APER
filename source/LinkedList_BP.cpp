@@ -38,13 +38,18 @@ void LinkedList_BP::AddNode( int bp_pos , int ascii, char error, char end_nuc, i
 	
 	}
 
+	if (error != '\0') {
+		error_count++;
+	}
+	total_bp++;
+
 	node_add->IncrementErrorPlusTotal(ascii, error, num_of_errors, end_nuc, read);
 
 
 }	
 
 //Function that prints out to the designated file
-void LinkedList_BP::GetBPErrors(FILE *fout, long int total, long int total_success, int read_1_length, int read_2_length) {
+void LinkedList_BP::GetBPErrors(FILE *fout, long int total, long int total_success, int read_1_length, int read_2_length, char *file_name) {
 
 	bp_position *p = start;
 	
@@ -52,8 +57,18 @@ void LinkedList_BP::GetBPErrors(FILE *fout, long int total, long int total_succe
 	char error_array[] = {'A', 'G', 'T', 'C', 'N'};
 
 	//header and extra read info
-	fprintf(fout, "#reads:%d\n#mapped:%d\n#read_1_length:%d\n#read_2_length:%d", total, total_success, read_1_length, read_2_length);
-	fprintf(fout, "Read\tPos\tQual\tTotal\tMatches\tAG\tAT\tAC\tAN\tGA\tGT\tGC\tGN\tTA\tTG\tTC\tTN\tCA\tCG\tCT\tCN\tNA\tNG\tNT\tNC\tins\tdel\tsoft_clip\n");
+	fprintf(fout, "#filename:%s\n#run_percent_error:%d\n#reads:%d\n#mapped:%d\n#read_1_length:%d\n#read_2_length:%d\n", file_name, (float)error_count / (float)total_bp, total, total_success, read_1_length, read_2_length);
+
+	fprintf(fout, "Read\tPos\tQual\tTotal\t");
+	//prints out bp shifts in the correct order
+	for (int start_bp = 0; start_bp < 5; start_bp++) {
+		for (int end_bp = 0; end_bp < 5; end_bp++) {
+			fprintf(fout, "%c%c\t", error_array[start_bp], error_array[end_bp]);
+		}
+	}	
+
+	fprintf(fout, "ins\tdel\tsoft_clip\n");
+	
 		
 	//go through the entire list	
 	while (p != NULL) {
@@ -65,13 +80,12 @@ void LinkedList_BP::GetBPErrors(FILE *fout, long int total, long int total_succe
 				//only prints values that are not zero
 				if (p->GetTotal_Ascii(qual_values, reads) != 0) {
 					//prints read, total, quality score, total, total matched
-					fprintf(fout, "%d\t%d\t%d\t%d\t%d\t", reads + 1, p->position , qual_values, p->GetTotal_Ascii(qual_values, reads), p->GetMatches_Ascii(qual_values, reads));
+					fprintf(fout, "%d\t%d\t%d\t%d\t", reads + 1, p->position , qual_values, p->GetTotal_Ascii(qual_values, reads));
 					
 					//loops through the error_array to get every possible combination of mismatch errors
 					for (int start_bp = 0; start_bp < 5; start_bp++) {
 						for (int end_bp = 0; end_bp < 5; end_bp++) {
-							if (start_bp != end_bp)
-								fprintf(fout, "%d\t", p->GetShift_Ascii(qual_values, error_array[start_bp], error_array[end_bp], reads));
+							fprintf(fout, "%d\t", p->GetShift_Ascii(qual_values, error_array[start_bp], error_array[end_bp], reads));
 						}
 					}	
 

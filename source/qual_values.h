@@ -13,26 +13,31 @@ class qual_positions {
 		long int A_G;
 		long int A_C;
 		long int A_N;
+		long int A_A;
 		
 		long int T_A;
 		long int T_G;
 		long int T_C;
 		long int T_N;
-	
+		long int T_T;
+
 		long int C_A;
 		long int C_T;
 		long int C_G;
 		long int C_N;
-		
+		long int C_C;
+	
 		long int G_A;
 		long int G_C;
 		long int G_T;
 		long int G_N;
+		long int G_G;
 
 		long int N_A;
 		long int N_C;
 		long int N_T;
 		long int N_G;
+		long int N_N;
 
 		long int matches;
 	
