@@ -4,7 +4,7 @@ Standard behavior of the program includes: reading from stdin, outputting to std
 
 -Ignores lines starting with '@' character
 -MD field must be in the SAM file
--Currently it does not support hard-clippings (H in the cigar string)
+-Currently it does not support hard-clippings (H in the cigar string )
 -If the -r (--to_reference) argument is used, base pair position (Pos) incrementing starts at the integer specified in the SAM file in the POS field. Otherwise, it starts at 1.
 
 
