@@ -137,12 +137,14 @@ int Test_Sam_Flag(int sam_flag, bool proper_alligment) {
 		}
 	}
 
-	if (sam_flag & 0x40)
+
+	if (sam_flag & 0x40) {
 		return 0;
-	else if (sam_flag & 0x80)
+	} else if (sam_flag & 0x80) {
 		return 1;
-	else
+	} else {
 		return -1;
+	}
 }
 
 
@@ -160,10 +162,9 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bo
 
 	tolkenized = strtok(data, "\t");
 	
-		
 	while (tolkenized != NULL) {
 		pos++;
-	
+		
 		//Columns constants are defined in global_constants.h based on http://samtools.github.io/hts-specs/SAMv1.pdf
 		if (pos == COLUMN_FLAG) {
 			read = Test_Sam_Flag(atoi(tolkenized), proper_alligment);
@@ -200,10 +201,6 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bo
 	//checks all values were collected
 	// will return a 0 if they were not
 	if (read != -1 && seq != NULL && qual != NULL && md != NULL && cigar != NULL) {
-		Cigar_Parser(cigar, ll_errors);
-		MD_Parser(md, ll_errors);
-		Update_BP_Info(qual, seq, ll_errors, ll_quality_info, read, reference_pos);
-
 		if (read == 0) {
 			if (read_1_length == -1) {
 				read_1_length = strlen(seq);
@@ -214,6 +211,9 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bo
 			}
 		}
 	
+		Cigar_Parser(cigar, ll_errors);
+		MD_Parser(md, ll_errors);
+		Update_BP_Info(qual, seq, ll_errors, ll_quality_info, read, reference_pos);
 
 		return 1;
 	} else {

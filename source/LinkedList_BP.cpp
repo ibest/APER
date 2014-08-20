@@ -5,42 +5,55 @@
 //  Add an item to the FRONT of the list
 void LinkedList_BP::AddNode( int bp_pos , int ascii, char error, char end_nuc, int num_of_errors, int read) {
 
-	bp_position *node_add = start;
-	bp_position *tmp_add = NULL;
+	bp_position *node_add = NULL;
 
 	
+	node_add =  new bp_position();
+	node_add->next = NULL;
+	node_add->position = bp_pos;
+		
+
 	//case that start is null
-	if (node_add == NULL) {
-		start = new bp_position();
-		start->position = bp_pos;
+	if (start == NULL) {
+
+		start = node_add;
 		start->next = NULL;
-		node_add = start;
-		count++;	
+
+	} else if (bp_pos < start->position) {
+
+		node_add->next=start;
+		start=node_add;
+
 	} else {
 		//continues to the end unless bp_pos is equal to the position
-		while (node_add->next != NULL ) {
-			if (node_add->position == bp_pos)
-				break;
-			node_add = node_add->next;
+		
+		bp_position *prev, *curr;
+		prev = start;
+		curr = start->next;
+
+		while (curr != NULL && bp_pos > curr->position) {
+			prev = curr;
+			curr = curr->next;
 		}
 	
-		//if bp_pos is not equal it wil add a new node in LL BP
-		if (node_add->position != bp_pos) {
-			tmp_add =  new bp_position();
-			
-			tmp_add->next = NULL;
-			tmp_add->position = bp_pos;
-			node_add->next = tmp_add;
-		
-			count++;
-			node_add = tmp_add;
+
+		if (curr == NULL) {
+			prev->next = node_add;
+			node_add->next = NULL;
+		} else	{
+			node_add->next = curr;
+			prev->next=node_add;
 		}
+
 	
 	}
+	
+	count++;
 
-	if (error != '\0') {
+	if (error != end_nuc) {
 		error_count++;
 	}
+	
 	total_bp++;
 
 	node_add->IncrementErrorPlusTotal(ascii, error, num_of_errors, end_nuc, read);
@@ -57,7 +70,7 @@ void LinkedList_BP::GetBPErrors(FILE *fout, long int total, long int total_succe
 	char error_array[] = {'A', 'G', 'T', 'C', 'N'};
 
 	//header and extra read info
-	fprintf(fout, "#filename:%s\n#run_percent_error:%d\n#reads:%d\n#mapped:%d\n#read_1_length:%d\n#read_2_length:%d\n", file_name, (float)error_count / (float)total_bp, total, total_success, read_1_length, read_2_length);
+	fprintf(fout, "#filename:%s\n#run_percent_error:%f\n#reads:%d\n#mapped:%d\n#read_1_length:%d\n#read_2_length:%d\n", file_name, ((float)error_count/(float)total_bp), total, total_success, read_1_length, read_2_length);
 
 	fprintf(fout, "Read\tPos\tQual\tTotal\t");
 	//prints out bp shifts in the correct order
