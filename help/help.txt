@@ -1,0 +1,40 @@
+APER is designed to be ran on SAM files, that have the MD field included, to show errors and quality scores for each base pair position.
+
+Standard behavior of the program includes: reading from stdin, outputting to stdout, looking at local base pair position (not reference base pair position), and enforcing that the 0x2 bit is set on the FLAG field (proper alignment is seen). If deletions occur, it is counted on the base pair previous to that deletion, and has the same quality score as the position.
+
+-Ignores lines starting with '@' character
+-MD field must be in the SAM file
+-Currently it does not support hard-clippings (H in the cigar string)
+-If the -r (--to_reference) argument is used, base pair position (Pos) incrementing starts at the integer specified in the SAM file in the POS field. Otherwise, it starts at 1.
+
+
+Arguments.
+	
+	-i, --input : Specifies input file (.SAM file with MD hash); default is stdin
+	-o, --output : Specifies output file; default is stdout
+	-r, --to_reference: Outputs base pair positions in relative the reference, not the locally where the base pair occurs; default is locally where the base pair occurs
+	-p, --proper_alignment : Does not force proper alignment (SAM FLAG field 0x2 bit does not have to be set); default forces proper alignment.
+
+	Future Enhancement:
+	-c, --cores: Specifies number of cores to be used; default is 1
+
+
+TO RUN PROGRAM:
+
+If starting from a FASTQ files (read 1 and read 2).
+	
+	bowtie2 | samtools calmd | samtools view - | ./qual_metric
+	
+	Example:
+	
+	bowtie2 -I 0 -X 1500 -p 20 -x ~/bowtie2_builds -1 ~/read_1_run -2 ~/read_2_run 2> bowtielog.out | samtools calmd -S -u - ~/reference.fa | samtools view - | ~/qual_metric -o
+
+If starting from SAM file with MD field:
+	
+	Either:
+		cat sample_file.SAM | ./qual_metric
+	OR:
+		./qual_metric -i "~/sample_file.SAM"
+
+
+Website to get latest updates: https://github.com/ibest/APER

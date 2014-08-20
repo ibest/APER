@@ -70,7 +70,7 @@ void LinkedList_BP::GetBPErrors(FILE *fout, long int total, long int total_succe
 	char error_array[] = {'A', 'G', 'T', 'C', 'N'};
 
 	//header and extra read info
-	fprintf(fout, "#filename:%s\n#run_percent_error:%f\n#reads:%d\n#mapped:%d\n#read_1_length:%d\n#read_2_length:%d\n", file_name, ((float)error_count/(float)total_bp), total, total_success, read_1_length, read_2_length);
+	fprintf(fout, "#filename:%s\n#run_error_frequency:%f\n#reads:%d\n#mapped:%d\n#read_1_length:%d\n#read_2_length:%d\n", file_name, ((float)error_count/(float)total_bp), total, total_success, read_1_length, read_2_length);
 
 	fprintf(fout, "Read\tPos\tQual\tTotal\t");
 	//prints out bp shifts in the correct order

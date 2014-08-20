@@ -9,6 +9,7 @@
 #include "LinkedList.h"
 #include "LinkedList_BP.h"
 #include <time.h>
+#include <getopt.h>
 
 int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bool to_reference, bool proper_alligment, int &read_1_length, int &read_2_length);
 int Test_Sam_Flag(int sam_flag, bool proper_alligment);
@@ -31,11 +32,23 @@ int main(int argc, char *argv[]) {
         FILE *sam_file;
         FILE *output_file;
 	int cores = 1;
+	int long_index;
 	bool to_reference = false;
 	bool proper_alligment = true;
-	//-i is input file
-	//-o is output file
-        while ((cmd_line_char = getopt(argc, argv, "ri:o:c:p:")) != EOF) {
+	
+
+	const struct option longopts[] = 
+	{
+		{"input", required_argument, 0, 'i'}, 
+		{"output", required_argument, 0, 'o'},
+		{"cores", required_argument, 0, 'c'},
+		{"to_reference", no_argument, 0, 'r'},
+		{"proper_alignment", no_argument, 0, 'p'},
+		{0, 0, 0, 0}
+	};
+
+		
+        while ((cmd_line_char = getopt_long(argc, argv, "pri:o:c:", longopts, &long_index)) != EOF) {
                 switch(cmd_line_char) {
                         case 'i':
                                 fin_name = strdup(optarg);
