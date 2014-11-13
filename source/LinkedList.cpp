@@ -1,7 +1,7 @@
 
 #include "LinkedList.h"
 #include <stdio.h>
-
+#include <stdlib.h>
 //  Add an item to the FRONT of the list
 
 void LinkedList::AddNode_Order(int bp_location, char errors, int num_of_error, bool duplicates) {
@@ -51,8 +51,9 @@ void LinkedList::AddNode_Order(int bp_location, char errors, int num_of_error, b
 				prev->next=n;
 			}
 		}
+
 	}
-					
+
 					
 
 }
@@ -88,7 +89,7 @@ void LinkedList::PrintNodes() {
     	nodeptr p = start;
 
     	while( p != NULL ) {
-        	printf("Postion %d Error %d Count %d\n", (p->info), p->error, p->num_of_errors);
+        	printf("Postion %d Error %c Count %d\n", (p->info), p->error, p->num_of_errors);
         	p = p->next;
     	}
 

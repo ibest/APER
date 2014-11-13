@@ -6,31 +6,41 @@
 void LinkedList_BP::AddNode( int bp_pos , int ascii, char error, char end_nuc, int num_of_errors, int read) {
 
 	bp_position *node_add = NULL;
-
-	
-	node_add =  new bp_position();
-	node_add->next = NULL;
-	node_add->position = bp_pos;
-		
-
 	//case that start is null
 	if (start == NULL) {
-
+		node_add =  new bp_position();
+		node_add->next = NULL;
+		node_add->position = bp_pos;
+		
 		start = node_add;
 		start->next = NULL;
 
 	} else if (bp_pos < start->position) {
-
+		node_add =  new bp_position();
+		node_add->next = NULL;
+		node_add->position = bp_pos;
+		
 		node_add->next=start;
 		start=node_add;
 
 	} else {
 		//continues to the end unless bp_pos is equal to the position
-		
-		bp_position *prev, *curr;
-		prev = start;
-		curr = start->next;
 
+				
+		bp_position *prev = NULL, *curr = NULL;
+
+		if (aux_pointer != NULL) {
+			if (aux_pointer->position < bp_pos) {
+				prev = aux_pointer;
+				curr = aux_pointer;
+			}
+		}
+
+		if (prev == NULL) {
+			prev = start;
+			curr = start;
+		}
+		
 		while (curr != NULL && bp_pos > curr->position) {
 			prev = curr;
 			curr = curr->next;
@@ -38,16 +48,25 @@ void LinkedList_BP::AddNode( int bp_pos , int ascii, char error, char end_nuc, i
 	
 
 		if (curr == NULL) {
+			node_add =  new bp_position();
+			node_add->next = NULL;
+			node_add->position = bp_pos;
+		
 			prev->next = node_add;
 			node_add->next = NULL;
+		} else if (curr->position == bp_pos) {
+			node_add = curr; 
 		} else	{
+			node_add =  new bp_position();
+			node_add->next = NULL;
+			node_add->position = bp_pos;
+			
 			node_add->next = curr;
 			prev->next=node_add;
 		}
 
 	
 	}
-	
 	count++;
 
 	if (error != end_nuc) {
@@ -57,7 +76,7 @@ void LinkedList_BP::AddNode( int bp_pos , int ascii, char error, char end_nuc, i
 	total_bp++;
 
 	node_add->IncrementErrorPlusTotal(ascii, error, num_of_errors, end_nuc, read);
-
+	aux_pointer = node_add;	
 
 }	
 

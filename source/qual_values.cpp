@@ -123,63 +123,63 @@ long int qual_positions::GetTotal() {
 	return total;
 }
 
-void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
-	bp_error++;
+void qual_positions::IncrementBPError(char start_nuc, char end_nuc, int num_of_errors) {
+	bp_error+=num_of_errors;
 
 	if (start_nuc == 'T' && end_nuc == 'G')
-		T_G++;
+		T_G+=num_of_errors;
 	else if (start_nuc == 'T' && end_nuc == 'A')
-		T_A++;
+		T_A+=num_of_errors;
 	else if (start_nuc == 'T' && end_nuc == 'C')
-		T_C++;
+		T_C+=num_of_errors;
 	else if (start_nuc == 'T' && end_nuc == 'N')
-		T_N++;
+		T_N+=num_of_errors;
 	else if (start_nuc == 'T' && end_nuc == 'T')
-		T_T++;
+		T_T+=num_of_errors;
 
 	else if (start_nuc == 'G' && end_nuc == 'T')
-		G_T++;
+		G_T+=num_of_errors;
 	else if (start_nuc == 'G' && end_nuc == 'A')
-		G_A++;
+		G_A+=num_of_errors;
 	else if (start_nuc == 'G' && end_nuc == 'C')
-		G_C++;
+		G_C+=num_of_errors;
 	else if (start_nuc == 'G' && end_nuc == 'N')
-		G_N++;
+		G_N+=num_of_errors;
 	else if (start_nuc == 'G' && end_nuc == 'G')
-		G_G++;
+		G_G+=num_of_errors;
 
 	else if (start_nuc == 'A' && end_nuc == 'T')
-		A_T++;
+		A_T+=num_of_errors;
 	else if (start_nuc == 'A' && end_nuc == 'G')
-		A_G++;
+		A_G+=num_of_errors;
 	else if (start_nuc == 'A' && end_nuc == 'C')
-		A_C++;
+		A_C+=num_of_errors;
 	else if (start_nuc == 'A' && end_nuc == 'N')
-		A_N++;
+		A_N+=num_of_errors;
 	else if (start_nuc == 'A' && end_nuc == 'A')
-		A_A++;
+		A_A+=num_of_errors;
 
 	else if (start_nuc == 'C' && end_nuc == 'T')
-		C_T++;
+		C_T+=num_of_errors;
 	else if (start_nuc == 'C' && end_nuc == 'G')
-		C_G++;
+		C_G+=num_of_errors;
 	else if (start_nuc == 'C' && end_nuc == 'A')
-		C_A++;
+		C_A+=num_of_errors;
 	else if (start_nuc == 'C' && end_nuc == 'N')
-		C_N++;
+		C_N+=num_of_errors;
 	else if (start_nuc == 'C' && end_nuc == 'C')
-		C_C++;
+		C_C+=num_of_errors;
 
 	else if (start_nuc == 'N' && end_nuc == 'T')
-		N_T++;
+		N_T+=num_of_errors;
 	else if (start_nuc == 'N' && end_nuc == 'G')
-		N_G++;
+		N_G+=num_of_errors;
 	else if (start_nuc == 'N' && end_nuc == 'C')
-		N_C++;
+		N_C+=num_of_errors;
 	else if (start_nuc == 'N' && end_nuc == 'A')
-		N_A++;
+		N_A+=num_of_errors;
 	else if (start_nuc == 'N' && end_nuc == 'N')
-		N_N++;
+		N_N+=num_of_errors;
 
 
 
@@ -187,23 +187,23 @@ void qual_positions::IncrementBPError(char start_nuc, char end_nuc) {
 
 }
 
-void qual_positions::IncrementSoftError() {
-	soft_error++;
+void qual_positions::IncrementSoftError(int num_of_errors) {
+	soft_error+=num_of_errors;
 }
 
-void qual_positions::IncrementInsError() {
-	ins_error++;
+void qual_positions::IncrementInsError(int num_of_errors) {
+	ins_error+=num_of_errors;
 }
 
-void qual_positions::IncrementDelError() {
-	del_error++;
+void qual_positions::IncrementDelError(int num_of_errors) {
+	del_error+=num_of_errors;
 }
 
-void qual_positions::IncrementMatches() {
-	matches++;
+void qual_positions::IncrementMatches(int num_of_errors) {
+	matches+=num_of_errors;
 }
 
-void qual_positions::IncrementTotal() {
-	total++;
+void qual_positions::IncrementTotal(int num_of_errors) {
+	total+=num_of_errors;
 }
 

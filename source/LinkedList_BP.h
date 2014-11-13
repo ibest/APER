@@ -5,16 +5,18 @@ using namespace std;
 class LinkedList_BP {
 	private:
   		typedef bp_position *nodeptr;
-  		bp_position* start;
+  		bp_position* start, *aux_pointer;
   		int count;
 		long int error_count;
 		long int total_bp;
+
 	public:
 
        	// Constructor
        	//
    	LinkedList_BP() {
       		start = NULL;
+		aux_pointer = NULL;
      	 	count = 0;
 		error_count = 0;
 		total_bp = 0;

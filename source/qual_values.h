@@ -50,11 +50,11 @@ class qual_positions {
 		long int GetMatches();
 		long int GetBPError(char start_nuc, char end_nuc);
 		long int GetSoftError();
-		void IncrementBPError(char start_nuc, char end_nuc);
-		void IncrementInsError();
-		void IncrementDelError();
-		void IncrementSoftError();
-		void IncrementTotal();
-		void IncrementMatches();
+		void IncrementBPError(char start_nuc, char end_nuc, int num_of_errors);
+		void IncrementInsError(int num_of_errors);
+		void IncrementDelError(int num_of_errors);
+		void IncrementSoftError(int num_of_errors);
+		void IncrementTotal(int num_of_errors);
+		void IncrementMatches(int num_of_errors);
 };
 

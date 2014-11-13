@@ -56,23 +56,21 @@ long int bp_position::GetTotal(int read) {
 
 void bp_position::IncrementErrorPlusTotal(int ascii_score, char error, int num_of_errors, char end_nuc, int read) {
 	//adds each of the errors based on the errors
-	for (int i = 0; i < num_of_errors; i++) {
 		if (error == 'D') {
-			info[ascii_score][read].IncrementDelError();
+			info[ascii_score][read].IncrementDelError(num_of_errors);
 		} else if (error == 'I') {
-			info[ascii_score][read].IncrementInsError();
+			info[ascii_score][read].IncrementInsError(num_of_errors);
 		} else if (error == '\0')  {
-			info[ascii_score][read].IncrementMatches();
+			info[ascii_score][read].IncrementMatches(num_of_errors);
 		} else if (error == 'S') {
-			info[ascii_score][read].IncrementSoftError();
+			info[ascii_score][read].IncrementSoftError(num_of_errors);
 		} else if (error == 'A' || error == 'G' || error == 'T' || error == 'C' || error == 'N') {
-			info[ascii_score][read].IncrementBPError(error, end_nuc);
+			info[ascii_score][read].IncrementBPError(error, end_nuc, num_of_errors);
 		} else {
 			printf("other %c\n", error);
 		}
 		//always increment total
-		info[ascii_score][read].IncrementTotal();
+		info[ascii_score][read].IncrementTotal(num_of_errors);
 
-	}
 }
 
