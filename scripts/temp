@@ -1,0 +1,7 @@
+#filename:(null)
+#run_error_frequency:-nan
+#reads:0
+#mapped:0
+#read_1_length:-1
+#read_2_length:-1
+Read	Pos	Qual	Total	AA	AG	AT	AC	AN	GA	GG	GT	GC	GN	TA	TG	TT	TC	TN	CA	CG	CT	CC	CN	NA	NG	NT	NC	NN	ins	del	soft_clip

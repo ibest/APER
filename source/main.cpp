@@ -228,7 +228,7 @@ int Parser(char *data, LinkedList_BP *ll_quality_info, LinkedList *ll_errors, bo
 		} else if (pos == COLUMN_QUAL) {
 			qual = strdup(tolkenized);
 		} else if (strncmp(tolkenized, "MD:xx", 2) == 0) {
-			//since MD:Z flag is not specified, I check for string and not position
+			//since MD:Z flag is not specified in SAM format, I check for string and not position
 			md = strdup(tolkenized);
 		}	
 

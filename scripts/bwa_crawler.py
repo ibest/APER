@@ -29,14 +29,14 @@ def Parse_Files_To_Reads_BWA(run_dir):
 	bwa_string = ""
 	for dir_path, dir_name, file_names in os.walk(run_dir):
 		for file in file_names:
-			if "_R1_" in file and "fastq" in file:
-				if os.path.isfile(dir_path + '/' + file.replace("_R1_", "_R4_")):
+			if "_R1" in file and "fastq" in file:
+				if os.path.isfile(dir_path + '/' + file.replace("_R1", "_R4")):
 					R1_string = (dir_path + '/' + file)
-					R2_string = (dir_path + '/' + file.replace("_R1_", "_R4_"))
+					R2_string = (dir_path + '/' + file.replace("_R1", "_R4"))
 				
-				elif os.path.isfile(dir_path + '/'  + file.replace("_R1_", "_R2_")):
+				elif os.path.isfile(dir_path + '/'  + file.replace("_R1", "_R2")):
 					R1_string = (dir_path + '/' + file)
-					R2_string = (dir_path + '/' + file.replace("_R1_", "_R2_"))
+					R2_string = (dir_path + '/' + file.replace("_R1", "_R2"))
 				bwa_string += "bwa mem -t 50 /mnt/home/grcuser/GRC_projects/GRC_miseq-quality_UI/Phi-X.fa " + R1_string + " " +  R2_string + "|"
 	return [bwa_string, "nothing"]
 
@@ -49,14 +49,14 @@ def Parse_Files_To_Reads(run_dir):
 
 	for dir_path, dir_name, file_names in os.walk(run_dir):
 		for file in file_names:
-			if "_R1_" in file and "fastq" in file:
-				if os.path.isfile(dir_path + '/' + file.replace("_R1_", "_R4_")):
+			if "_R1" in file and "fastq" in file:
+				if os.path.isfile(dir_path + '/' + file.replace("_R1", "_R4")):
 					R1_string += (dir_path + '/' + file + ",")
-					R2_string += (dir_path + '/' + file.replace("_R1_", "_R4_") + ",")
+					R2_string += (dir_path + '/' + file.replace("_R1", "_R4") + ",")
 				
-				elif os.path.isfile(dir_path + '/'  + file.replace("_R1_", "_R2_")):
+				elif os.path.isfile(dir_path + '/'  + file.replace("_R1", "_R2")):
 					R1_string += (dir_path + '/' + file + ",")
-					R2_string += (dir_path + '/' + file.replace("_R1_", "_R2_") + ",")
+					R2_string += (dir_path + '/' + file.replace("_R1", "_R2") + ",")
 
 	return [R1_string[:-1], R2_string[:-1]] 
 
